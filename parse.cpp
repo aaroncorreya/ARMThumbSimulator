@@ -59,7 +59,7 @@ void parse(const char * file) {
     exit(1);
   }
   in >> addr;
-  pc = addr;
+  pc.write(addr);
   parseMem(in, "instruction");
   parseMem(in, "data");
 }
