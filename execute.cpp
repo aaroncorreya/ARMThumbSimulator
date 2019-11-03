@@ -249,7 +249,7 @@ void execute() {
           setCarryOverflow(rf[alu.instr.addr.rn], rf[alu.instr.addr.rm], OF_ADD);
           break;
         case ALU_SUBR:
-        rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+          rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
         //needs stats and flags
           break;
         case ALU_ADD3I:
@@ -264,7 +264,9 @@ void execute() {
           rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
           break;
         case ALU_CMP:
-        //ADD TO THIS
+          //ADD TO THIS
+          setZN(alu.instr.cmp.rdn, alu.instr.cmp.imm);
+          setCarryOverflow(alu.instr.cmp.rdn, alu.instr.cmp.imm, OF_SUB);
           break;
         case ALU_ADD8I:
           // needs stats and flags
@@ -352,6 +354,8 @@ void execute() {
           break;
         case LDRR:
           // need to implement
+          addr = rf[ld_st.instr.ld_st_imm.rn];
+          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
           break;
         case STRBI:
           // need to implement
