@@ -354,8 +354,8 @@ void execute() {
           break;
         case LDRR:
           // need to implement
-          addr = rf[ld_st.instr.ld_st_imm.rn];
-          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+          addr = rf[ld_st.instr.ld_st_reg.rn];
+          rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
           break;
         case STRBI:
           // need to implement
