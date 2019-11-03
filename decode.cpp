@@ -141,7 +141,7 @@ ALU_Ops decode (const ALU_Type data) {
 DP_Ops decode (const DP_Type data) {
   if (data.instr.DP_Instr.op == DP_CMP) {
     if (opts.instrs) { 
-     cout << "cmp r" << data.instr.cmp.rdn << ", r" << data.instr.cmp.rn ", r" << data.instr.cmp.rm << endl;
+     cout << "cmp r" << data.instr.DP_Instr.rdn << ", r" << data.instr.DP_Instr.rdn << ", r" << data.instr.DP_Instr.rm << endl;
     }
     return DP_CMP;
   }
@@ -453,7 +453,7 @@ BL_Ops decode (const BL_Type data) {
 int decode (const LDM_Type data) {
   // 315: add code to print ldm 
   if (opts.instrs) { 
-    cout << "ldm" << data.instr.ldm.imm << endl;
+    cout << "ldm" << data.instr.ldm.rn << endl;
   }
   return LDM;
 }
@@ -461,7 +461,7 @@ int decode (const LDM_Type data) {
 int decode (const STM_Type data) {
   // 315: add code to print ldm 
   if (opts.instrs) { 
-    cout << "stm" << data.instr.stm.imm << endl;
+    cout << "stm" << data.instr.stm.rn << endl;
   }
   return STM;
 }
