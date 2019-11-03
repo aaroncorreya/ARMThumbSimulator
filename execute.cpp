@@ -371,6 +371,7 @@ void execute() {
       switch(misc_ops) {
         case MISC_PUSH:
           // need to implement
+          
           break;
         case MISC_POP:
           // need to implement
