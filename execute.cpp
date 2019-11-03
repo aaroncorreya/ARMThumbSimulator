@@ -89,6 +89,29 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
   }
 }
 
+void setZN((int num1, int num2){
+  int result = num1-num2;
+  
+  if (result < 0)
+  {
+    flags.N = 1;
+  } 
+  else 
+  {
+    flags.N = 0; 
+  }
+
+  if (result == 0)
+  {
+    flags.Z = 1;
+  }
+
+  else
+  {
+    flags.Z = 0; 
+  }
+}
+
 // CPE 315: You're given the code for evaluating BEQ, and you'll need to 
 // complete the rest of these conditions. See Page 208 of the armv7 manual
 static int checkCondition(unsigned short cond) {
@@ -99,30 +122,69 @@ static int checkCondition(unsigned short cond) {
       }
       break;
     case NE:
+      if (flags.Z == 0) {
+        return TRUE; 
+      }
       break;
     case CS:
+      if (flags.C == 1) {
+        return TRUE;
+      }
       break;
     case CC:
+       if (flags.C == 0) {
+        return TRUE;
+      }
       break;
     case MI:
+       if (flags.N == 1) {
+        return TRUE;
+      }
       break;
     case PL:
+       if (flags.N == 0) {
+        return TRUE;
+      }
       break;
     case VS:
+       if (flags.V == 1) {
+        return TRUE;
+      }
       break;
     case VC:
+       if (flags.V == 0) {
+        return TRUE;
+      }
       break;
     case HI:
+       if ( (flags.C == 1) && (flags.Z == 0) ) {
+        return TRUE;
+      }
       break;
     case LS:
+       if ( (flags.C == 0) || (flags.Z == 1) ) {
+        return TRUE;
+      } 
       break;
     case GE:
+       if (flags.N == flags.V) {
+        return TRUE;
+      }
       break;
     case LT:
+       if (flags.N != flags.V) {
+        return TRUE;
+      }
       break;
     case GT:
+       if ( (flags.Z == 0) && (flags.N == flags.V) ) {
+        return TRUE;
+      } 
       break;
     case LE:
+       if ( (flags.Z == 1) || (flags.N != flags.V) ) {
+        return TRUE;
+      } 
       break;
     case AL:
       return TRUE;
@@ -183,26 +245,33 @@ void execute() {
         case ALU_ADDR:
           // needs stats and flags
           rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
+          setCarryOverflow(rf[alu.instr.addr.rn], rf[alu.instr.addr.rm], OF_ADD);
           break;
         case ALU_SUBR:
+        rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+        //needs stats and flags
           break;
         case ALU_ADD3I:
           // needs stats and flags
           rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
           break;
         case ALU_SUB3I:
+          rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
           break;
         case ALU_MOV:
           // needs stats and flags
           rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
           break;
         case ALU_CMP:
+        //ADD TO THIS
           break;
         case ALU_ADD8I:
           // needs stats and flags
           rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
           break;
         case ALU_SUB8I:
+          // needs stats and flags
+          rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
           break;
         default:
           cout << "instruction not implemented" << endl;
