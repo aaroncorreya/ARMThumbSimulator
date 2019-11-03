@@ -277,7 +277,8 @@ void execute() {
         case ALU_SUB8I:
           // needs stats and flags
           rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
-          setCarryOverflow(rf[alu.instr.sub8i.rdn], rf[alu.instr.sub8i.imm], OF_SUB);
+          setCarryOverflow(rf[alu.instr.sub8i.rdn], 
+          rf[alu.instr.sub8i.imm], OF_SUB);
           break;
         default:
           cout << "instruction not implemented" << endl;
@@ -377,9 +378,12 @@ void execute() {
       switch(misc_ops) {
         case MISC_PUSH:
           // need to implement
+          dmem.write(SP_REG, SP - (misc.instr.sub.imm*4));
+          
           break;
         case MISC_POP:
           // need to implement
+           dmem.write(SP_REG, SP + (misc.instr.add.imm*4));
           break;
         case MISC_SUB:
           // functionally complete, needs stats
