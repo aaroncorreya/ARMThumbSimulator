@@ -250,14 +250,17 @@ void execute() {
           break;
         case ALU_SUBR:
         rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+        setCarryOverflow(rf[alu.instr.subr.rn], rf[alu.instr.subr.rm], OF_SUB);
         //needs stats and flags
           break;
         case ALU_ADD3I:
           // needs stats and flags
           rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+          setCarryOverflow(rf[alu.instr.add3i.rn], rf[alu.instr.add3i.imm], OF_ADD);
           break;
         case ALU_SUB3I:
           rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
+          setCarryOverflow(rf[alu.instr.sub3i.rn], rf[alu.instr.sub3i.imm], OF_SUB);
           break;
         case ALU_MOV:
           // needs stats and flags
@@ -269,10 +272,12 @@ void execute() {
         case ALU_ADD8I:
           // needs stats and flags
           rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
+          setCarryOverflow(rf[alu.instr.add8i.rdn], rf[alu.instr.add8i.imm], OF_ADD);
           break;
         case ALU_SUB8I:
           // needs stats and flags
           rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+          setCarryOverflow(rf[alu.instr.sub8i.rdn], rf[alu.instr.sub8i.imm], OF_SUB);
           break;
         default:
           cout << "instruction not implemented" << endl;
@@ -372,7 +377,6 @@ void execute() {
       switch(misc_ops) {
         case MISC_PUSH:
           // need to implement
-          
           break;
         case MISC_POP:
           // need to implement
