@@ -1,4 +1,5 @@
 #include "thumbsim.hpp"
+#include <string>
 // These are just the register NUMBERS
 #define PC_REG 15  
 #define LR_REG 14
@@ -89,7 +90,7 @@ void setCarryOverflow (int num1, int num2, OFType oftype) {
   }
 }
 
-void setZN((int num1, int num2){
+void setZN(int num1, int num2){
   int result = num1-num2;
   
   if (result < 0)
