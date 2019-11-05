@@ -194,6 +194,27 @@ static int checkCondition(unsigned short cond) {
   return FALSE;
 }
 
+void push(unsigned short reg_list)
+{
+  unsigned int addr;
+  int i, mask = 1;
+
+  addr = SP; // get initial address of stack pointer
+
+  for (i = 0; i < 8; i++)
+  {
+    mask = 1 << i; // mask to check each bit one by one
+
+    // if the corresponding bit was switched on, push to stack
+    if (reg_list & mask)
+    {
+      rf.write(addr, rf[i]);
+      addr += 4;
+    }
+  }
+  rf.write(SP_REG, addr); // set the stack pointer to the new address
+}
+
 void execute() {
   Data16 instr = imem[PC];
   Data16 instr2;
@@ -376,7 +397,7 @@ void execute() {
       switch(misc_ops) {
         case MISC_PUSH:
           // need to implement
-          
+          push(misc.instr.push.reg_list);
           break;
         case MISC_POP:
           // need to implement
