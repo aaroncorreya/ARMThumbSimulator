@@ -383,7 +383,7 @@ void execute() {
           break;
         case MISC_POP:
           // need to implement
-          
+          pop(misc.instr.pop.reg_list);
 
           break;
         case MISC_SUB:
