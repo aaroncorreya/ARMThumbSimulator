@@ -242,6 +242,7 @@ void execute() {
       add_ops = decode(alu);
       switch(add_ops) {
         case ALU_LSLI:
+        //add to this too 
           break;
         case ALU_ADDR:
           // needs stats and flags
@@ -351,6 +352,8 @@ void execute() {
           break;
         case STRR:
           // need to implement
+          addr = rf[ld_st.instr.ld_st_reg.rn];
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
           break;
         case LDRR:
           // need to implement
@@ -376,10 +379,12 @@ void execute() {
       switch(misc_ops) {
         case MISC_PUSH:
           // need to implement
-          
+
           break;
         case MISC_POP:
           // need to implement
+          
+
           break;
         case MISC_SUB:
           // functionally complete, needs stats
@@ -444,4 +449,21 @@ void execute() {
       exit(1);
       break;
   }
+}
+
+void pop(unsigned short reg_list)
+{
+  int i, mask = 1;
+  int addr = SP_REG;
+
+  for (i = 0; i < 8; i++)
+  {
+    mask = 1 << i;
+    if (reg_list & mask)
+    {
+      rf.write(addr, rf[i]);
+      addr = addr + 4;
+    }
+  }
+  rf.write(SP_REG, addr);
 }
