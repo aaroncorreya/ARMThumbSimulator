@@ -209,7 +209,7 @@ void push(unsigned short reg_list)
     if (reg_list & mask)
     {
       rf.write(addr, rf[i]);
-      addr += 4;
+      addr -= 4;
     }
   }
   rf.write(SP_REG, addr); // set the stack pointer to the new address
