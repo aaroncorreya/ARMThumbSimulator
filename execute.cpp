@@ -121,77 +121,91 @@ static int checkCondition(unsigned short cond) {
       if (flags.Z == 1) {
         return TRUE;
       }
+      return FALSE;
       break;
     case NE:
       if (flags.Z == 0) {
         return TRUE; 
       }
+      return FALSE;
       break;
     case CS:
       if (flags.C == 1) {
         return TRUE;
       }
+      return FALSE;
       break;
     case CC:
        if (flags.C == 0) {
         return TRUE;
       }
+      return FALSE;
       break;
     case MI:
        if (flags.N == 1) {
         return TRUE;
       }
+      return FALSE;
       break;
     case PL:
        if (flags.N == 0) {
         return TRUE;
       }
+      return FALSE;
       break;
     case VS:
        if (flags.V == 1) {
         return TRUE;
       }
+      return FALSE;
       break;
     case VC:
        if (flags.V == 0) {
         return TRUE;
       }
+      return FALSE;
       break;
     case HI:
        if ( (flags.C == 1) && (flags.Z == 0) ) {
         return TRUE;
       }
+      return FALSE;
       break;
     case LS:
        if ( (flags.C == 0) || (flags.Z == 1) ) {
         return TRUE;
-      } 
+      }
+      return FALSE; 
       break;
     case GE:
        if (flags.N == flags.V) {
         return TRUE;
       }
+      return FALSE;
       break;
     case LT:
        if (flags.N != flags.V) {
         return TRUE;
       }
+      return FALSE;
       break;
     case GT:
        if ( (flags.Z == 0) && (flags.N == flags.V) ) {
         return TRUE;
-      } 
+      }
+      return FALSE; 
       break;
     case LE:
        if ( (flags.Z == 1) || (flags.N != flags.V) ) {
         return TRUE;
       } 
+      return FALSE;
       break;
     case AL:
       return TRUE;
       break;
   }
-  return FALSE;
+  return TRUE;
 }
 
 void push(unsigned short reg_list)
@@ -201,7 +215,7 @@ void push(unsigned short reg_list)
 
   addr = SP; // get initial address of stack pointer
 
-  for (i = 0; i < 8; i++)
+  for (i = 0; i < 7; i++)
   {
     mask = 1 << i; // mask to check each bit one by one
 
@@ -213,6 +227,23 @@ void push(unsigned short reg_list)
     }
   }
   rf.write(SP_REG, addr); // set the stack pointer to the new address
+}
+
+void pop(unsigned short reg_list)
+{
+  int i, mask = 1;
+  unsigned int addr = SP;
+
+  for (i = 0; i < 7; i++)
+  {
+    mask = 1 << i;
+    if (reg_list & mask)
+    {
+      rf.write(addr, rf[i]);
+      addr = addr + 4;
+    }
+  }
+  rf.write(SP_REG, addr);
 }
 
 void execute() {
@@ -263,6 +294,7 @@ void execute() {
       add_ops = decode(alu);
       switch(add_ops) {
         case ALU_LSLI:
+        //add to this too 
           break;
         case ALU_ADDR:
           // needs stats and flags
@@ -286,7 +318,7 @@ void execute() {
           break;
         case ALU_CMP:
           //ADD TO THIS
-          setZN(alu.instr.cmp.rdn, alu.instr.cmp.imm);
+          setZN(rf[alu.instr.cmp.rdn], rf[alu.instr.cmp.imm]);
           setCarryOverflow(alu.instr.cmp.rdn, alu.instr.cmp.imm, OF_SUB);
           break;
         case ALU_ADD8I:
@@ -372,6 +404,8 @@ void execute() {
           break;
         case STRR:
           // need to implement
+          addr = rf[ld_st.instr.ld_st_reg.rn];
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
           break;
         case LDRR:
           // need to implement
@@ -401,6 +435,8 @@ void execute() {
           break;
         case MISC_POP:
           // need to implement
+          pop(misc.instr.pop.reg_list);
+
           break;
         case MISC_SUB:
           // functionally complete, needs stats
@@ -466,3 +502,4 @@ void execute() {
       break;
   }
 }
+
