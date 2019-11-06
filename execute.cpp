@@ -208,7 +208,7 @@ static int checkCondition(unsigned short cond) {
   return TRUE;
 }
 
-void push(unsigned short reg_list)
+void push(unsigned short reg_list, unsigned short m)
 {
   unsigned int addr;
   int i, mask = 1;
@@ -226,11 +226,17 @@ void push(unsigned short reg_list)
       addr -= 4;
     }
   }
+
+  if (m)
+  {
+    rf.write(addr, rf[LR_REG]);
+    addr -= 4;
+  }
   
   rf.write(SP_REG, addr); // set the stack pointer to the new address
 }
 
-void pop(unsigned short reg_list)
+void pop(unsigned short reg_list, unsigned short m)
 {
   int i, mask = 1;
   unsigned int addr = SP;
@@ -240,11 +246,16 @@ void pop(unsigned short reg_list)
     mask = 1 << i;
     if (reg_list & mask)
     {
-      rf.write(addr, rf[i]);
+      rf.write(i, rf[addr]);
       addr = addr + 4;
     }
   }
-  
+
+  if (m)
+  {
+    rf.write(PC_REG, addr);
+    addr += 4;
+  }
   rf.write(SP_REG, addr);
 }
 
@@ -434,11 +445,11 @@ void execute() {
       switch(misc_ops) {
         case MISC_PUSH:
           // need to implement
-          push(misc.instr.push.reg_list);
+          push(misc.instr.push.reg_list, misc.instr.push.m);
           break;
         case MISC_POP:
           // need to implement
-          pop(misc.instr.pop.reg_list);
+          pop(misc.instr.pop.reg_list, misc.instr.pop.m);
 
           break;
         case MISC_SUB:
