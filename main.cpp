@@ -54,7 +54,7 @@ int main(int argc, char ** argv) {
   while(imem.inRange(rf[15])) {
     execute();
   }
-
+  
   if (opts.dump) {
     cout << "DATA:" << endl;
     dmem.dump(DATA);

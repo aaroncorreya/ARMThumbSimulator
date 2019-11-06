@@ -226,6 +226,7 @@ void push(unsigned short reg_list)
       addr -= 4;
     }
   }
+  
   rf.write(SP_REG, addr); // set the stack pointer to the new address
 }
 
@@ -243,6 +244,7 @@ void pop(unsigned short reg_list)
       addr = addr + 4;
     }
   }
+  
   rf.write(SP_REG, addr);
 }
 
@@ -300,6 +302,7 @@ void execute() {
           // needs stats and flags
           rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
           setCarryOverflow(rf[alu.instr.addr.rn], rf[alu.instr.addr.rm], OF_ADD);
+          
           break;
         case ALU_SUBR:
           rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
@@ -318,8 +321,8 @@ void execute() {
           break;
         case ALU_CMP:
           //ADD TO THIS
-          setZN(rf[alu.instr.cmp.rdn], rf[alu.instr.cmp.imm]);
-          setCarryOverflow(alu.instr.cmp.rdn, alu.instr.cmp.imm, OF_SUB);
+          setZN(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm);
+          setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
           break;
         case ALU_ADD8I:
           // needs stats and flags
@@ -461,6 +464,7 @@ void execute() {
       // Essentially the same as the conditional branches, but with no
       // condition check, and an 11-bit immediate field
       decode(uncond);
+      rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
       break;
     case LDM:
       decode(ldm);
