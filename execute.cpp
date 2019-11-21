@@ -298,6 +298,7 @@ void execute() {
           //ADD TO THIS
           setZN(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm);
           setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
+          cout << "rdn: " << rf[alu.instr.cmp.rdn] << ", imm: " << alu.instr.cmp.imm << endl;
           break;
         case ALU_ADD8I:
           // needs stats and flags
@@ -349,6 +350,8 @@ void execute() {
       switch(dp_ops) {
         case DP_CMP:
           // need to implement
+          setZN(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm]);
+          setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SUB);
           break;
       }
       break;
@@ -379,6 +382,7 @@ void execute() {
           // functionally complete, needs stats
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+          cout << "Writing " << ld_st.instr.ld_st_imm.rt << " to addr at r" << dmem[addr] << endl;
           break;
         case STRR:
           // need to implement
@@ -392,15 +396,23 @@ void execute() {
           break;
         case STRBI:
           // need to implement
+          cout << "Not implemented" << endl;
           break;
         case LDRBI:
           // need to implement
+          cout << "Not implemented" << endl;
           break;
         case STRBR:
           // need to implement
+          addr = rf[ld_st.instr.ld_st_reg.rn];
+          dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt] % 256);
+          cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to addr at r" << ld_st.instr.ld_st_reg.rn << endl;
           break;
         case LDRBR:
           // need to implement
+          addr = rf[ld_st.instr.ld_st_reg.rn];
+          rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr] % 256);
+          cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] % 256 << " to r" << ld_st.instr.ld_st_reg.rn << endl;
           break;
       }
       break;
@@ -445,8 +457,6 @@ void execute() {
 
          break;
 
-
-          break;
         case MISC_POP:
           // need to implement
             n = 16;
@@ -523,7 +533,40 @@ void execute() {
       break;
     case STM:
       decode(stm);
-      // need to implement
+      n = 16;
+
+       list = stm.instr.stm.reg_list;
+
+       //addr = SP - 4*bitCount(list, n);
+       addr = rf[stm.instr.stm.rn];
+
+       for (i = 0, mask = 1; i < n; i++, mask<<=1) {
+
+          if (list&mask) {
+
+             caches.access(addr);
+
+             dmem.write(addr, rf[i]);
+
+             //cout << "addr: " << addr << " r" << i << ": " << rf[i] << endl;
+
+             addr+=4;
+
+             stats.numRegReads += 1;
+
+             stats.numMemWrites += 1;
+
+          }
+
+       }
+
+       rf.write(stm.instr.stm.rn, addr);
+
+
+
+       stats.numRegReads += 1;
+
+       stats.numRegWrites += 1;
       break;
     case LDRL:
       // This instruction is complete, nothing needed
