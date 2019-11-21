@@ -208,55 +208,19 @@ static int checkCondition(unsigned short cond) {
   return TRUE;
 }
 
-void push(unsigned short reg_list, unsigned short m)
-{
-  unsigned int addr;
-  int i, mask = 1;
+int bitCount(int list, unsigned int n) {
+  int i = 0;
+  int mask = 1; 
+  int count; 
 
-  addr = SP; // get initial address of stack pointer
-
-  for (i = 0; i < 7; i++)
-  {
-    mask = 1 << i; // mask to check each bit one by one
-
-    // if the corresponding bit was switched on, push to stack
-    if (reg_list & mask)
-    {
-      rf.write(addr, rf[i]);
-      addr -= 4;
-    }
+  for (i=0; i < n; i++) {
+    mask = 1<<i;
+    if(list & mask) {
+      count ++;}
   }
 
-  if (m)
-  {
-    rf.write(addr, rf[LR_REG]);
-    addr -= 4;
-  }
-  
-  rf.write(SP_REG, addr); // set the stack pointer to the new address
-}
+  return count;
 
-void pop(unsigned short reg_list, unsigned short m)
-{
-  int i, mask = 1;
-  unsigned int addr = SP;
-
-  for (i = 0; i < 7; i++)
-  {
-    mask = 1 << i;
-    if (reg_list & mask)
-    {
-      rf.write(i, rf[addr]);
-      addr = addr + 4;
-    }
-  }
-
-  if (m)
-  {
-    rf.write(PC_REG, addr);
-    addr += 4;
-  }
-  rf.write(SP_REG, addr);
 }
 
 void execute() {
@@ -443,15 +407,91 @@ void execute() {
     case MISC:
       misc_ops = decode(misc);
       switch(misc_ops) {
-        case MISC_PUSH:
-          // need to implement
-          push(misc.instr.push.reg_list, misc.instr.push.m);
+        case MISC_PUSH: // fib
+
+         n = 16;
+
+         list = (misc.instr.push.m<<(n-2)) | misc.instr.push.reg_list;
+
+         addr = SP - 4*bitCount(list, n);
+
+         for (i = 0, mask = 1; i < n; i++, mask<<=1) {
+
+            if (list&mask) {
+
+               caches.access(addr);
+
+               dmem.write(addr, rf[i]);
+
+               addr+=4;
+
+
+
+               stats.numRegReads += 1;
+
+               stats.numMemWrites += 1;
+
+            }
+
+         }
+
+         rf.write(SP_REG, SP - 4*bitCount(list, n));
+
+
+
+         stats.numRegReads += 1;
+
+         stats.numRegWrites += 1;
+
+         break;
+
+
           break;
         case MISC_POP:
           // need to implement
-          pop(misc.instr.pop.reg_list, misc.instr.pop.m);
+            n = 16;
 
-          break;
+         list = (misc.instr.pop.m<<(n-1)) | misc.instr.pop.reg_list;
+
+         addr = SP;
+
+         for (i = 0, mask = 1; i < 8; i++, mask<<=1) {
+
+            if (misc.instr.pop.reg_list&mask) {
+  
+               caches.access(addr);
+
+               rf.write(i, dmem[addr]);
+
+               addr+=4;
+
+               stats.numRegWrites += 1;
+
+               stats.numMemReads += 1;
+
+            }
+
+         }
+
+         if (misc.instr.pop.m) {
+
+            caches.access(addr);
+
+            rf.write(PC_REG, dmem[addr]);
+
+            stats.numRegWrites += 1;
+
+            stats.numMemReads += 1;
+
+         }
+
+         rf.write(SP_REG, SP + 4*bitCount(list, n));
+
+         stats.numRegReads += 1;
+
+         stats.numRegWrites += 1;
+ 
+         break;
         case MISC_SUB:
           // functionally complete, needs stats
           rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
