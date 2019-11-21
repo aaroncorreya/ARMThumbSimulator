@@ -271,7 +271,6 @@ void execute() {
       add_ops = decode(alu);
       switch(add_ops) {
         case ALU_LSLI:
-        //add to this too
         rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
           break;
         case ALU_ADDR:
@@ -383,7 +382,7 @@ void execute() {
           // functionally complete, needs stats
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
-          cout << "Writing " << ld_st.instr.ld_st_imm.rt << " to addr at r" << dmem[addr] << endl;
+          cout << "ldri Writing " << dmem[addr] << " to r" << ld_st.instr.ld_st_imm.rt << " from addr: " << addr << endl;
           break;
         case STRR:
           // need to implement

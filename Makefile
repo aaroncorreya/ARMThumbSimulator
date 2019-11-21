@@ -4,5 +4,6 @@ all:
 run:
 	./thumbsim -i -d -f inputs/shang.O1.sim
 
+
 clean:
 	rm -rf ./*.o ./thumbsim
