@@ -141,7 +141,7 @@ ALU_Ops decode (const ALU_Type data) {
 DP_Ops decode (const DP_Type data) {
   if (data.instr.DP_Instr.op == DP_CMP) {
     if (opts.instrs) { 
-     cout << "cmp r" << data.instr.DP_Instr.rdn << ", r" << data.instr.DP_Instr.rdn << ", r" << data.instr.DP_Instr.rm << endl;
+     cout << "cmp r" << data.instr.DP_Instr.rdn << ", r" << data.instr.DP_Instr.rm << endl;
     }
     return DP_CMP;
   }
@@ -181,7 +181,7 @@ SP_Ops decode (const SP_Type data) {
   else if (data.instr.add.op == 0) {
     // Here you'll need to SP_ADD similar to above
     if (opts.instrs) {
-      cout << "add r" << data.instr.add.rd  << ", sp" << data.instr.add.rd << ", r" << data.instr.add.rm << endl;
+      cout << "add sp, sp, r" << data.instr.add.rm << endl;
     return SP_ADD;
     }
     else if (data.instr.cmp.op == 1) {
@@ -461,15 +461,65 @@ int decode (const LDM_Type data) {
 int decode (const STM_Type data) {
   // 315: add code to print ldm 
   if (opts.instrs) { 
-    cout << "stm" << data.instr.stm.rn << endl;
+    cout << "stm r" << data.instr.stm.rn << "!, ";
+    cout << "{";
+    bool multiple = FALSE;
+    if (data.instr.stm.reg_list & 1) {
+      cout << "r0";
+      multiple = TRUE;
+    }
+    if (data.instr.stm.reg_list & 2) {
+      if (multiple)
+        cout << ", ";
+      cout << "r1";
+      multiple = TRUE;
+    }
+    if (data.instr.stm.reg_list & 4) {
+      if (multiple)
+        cout << ", ";
+      cout << "r2";
+      multiple = TRUE;
+    }
+    if (data.instr.stm.reg_list & 8) {
+      if (multiple)
+        cout << ", ";
+      cout << "r3";
+      multiple = TRUE;
+    }
+    if (data.instr.stm.reg_list & 16) {
+      if (multiple)
+        cout << ", ";
+      cout << "r4";
+      multiple = TRUE;
+    }
+    if (data.instr.stm.reg_list & 32) {
+      if (multiple)
+        cout << ", ";
+      cout << "r5";
+      multiple = TRUE;
+    }
+    if (data.instr.stm.reg_list & 64) {
+      if (multiple)
+        cout << ", ";
+      cout << "r6";
+      multiple = TRUE;
+    }
+    if (data.instr.stm.reg_list & 128) {
+      if (multiple)
+        cout << ", ";
+      cout << "r7";
+      multiple = TRUE;
+    }
+    cout << "}" << endl;
   }
   return STM;
 }
 
 int decode (const LDRL_Type data) {
   // 315: add code to print ldr
-  if (opts.instrs) { 
-    cout << "ldrl" << data.instr.ldrl.imm << endl;
+  if (opts.instrs) {
+    cout << "ldr r" << data.instr.ldrl.rt << ", [pc, #" << setbase(10) << (data.instr.ldrl.imm*4) << "]" << endl;
+    //cout << "ldr" << data.instr.ldrl.imm << endl;
   }
   return LDRL;
 }
