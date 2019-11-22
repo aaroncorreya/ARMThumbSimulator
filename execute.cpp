@@ -382,7 +382,6 @@ void execute() {
           // functionally complete, needs stats
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
-          cout << "ldri Writing " << dmem[addr] << " to r" << ld_st.instr.ld_st_imm.rt << " from addr: " << addr << endl;
           break;
         case STRR:
           // need to implement
