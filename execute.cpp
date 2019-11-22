@@ -298,7 +298,7 @@ void execute() {
           //ADD TO THIS
           setZN(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm);
           setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
-          cout << "rdn: " << rf[alu.instr.cmp.rdn] << ", imm: " << alu.instr.cmp.imm << endl;
+          //cout << "rdn: " << rf[alu.instr.cmp.rdn] << ", imm: " << alu.instr.cmp.imm << endl;
           break;
         case ALU_ADD8I:
           // needs stats and flags
@@ -385,37 +385,37 @@ void execute() {
           break;
         case STRR:
           // need to implement
-          addr = rf[ld_st.instr.ld_st_reg.rn];
+          addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm] * 4;
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+          //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to " << addr << endl;
           break;
         case LDRR:
           // need to implement
-          addr = rf[ld_st.instr.ld_st_reg.rn];
+          addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm] * 4;
           rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
           break;
         case STRBI:
           // need to implement
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm;
           dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt] % 256);
-          cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to addr at r" << ld_st.instr.ld_st_imm.rn << endl;
+          //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to addr at r" << ld_st.instr.ld_st_imm.rn << endl;
           break;
         case LDRBI:
           // need to implement
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm;
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr] % 256);
-          cout << "Writing " << ld_st.instr.ld_st_imm.rt << " to r" << dmem[addr] << endl;
           break;
         case STRBR:
           // need to implement
-          addr = rf[ld_st.instr.ld_st_reg.rn];
+          addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt] % 256);
-          cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to addr at r" << ld_st.instr.ld_st_reg.rn << endl;
+          //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to " << addr << endl;
           break;
         case LDRBR:
           // need to implement
-          addr = rf[ld_st.instr.ld_st_reg.rn];
+          addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
           rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr] % 256);
-          cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] % 256 << " to r" << ld_st.instr.ld_st_reg.rn << endl;
+          //cout << "Writing b " << dmem[addr] << " to r" << ld_st.instr.ld_st_reg.rt << endl;
           break;
       }
       break;
