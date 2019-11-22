@@ -397,11 +397,15 @@ void execute() {
           break;
         case STRBI:
           // need to implement
-          cout << "Not implemented" << endl;
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm;
+          dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt] % 256);
+          cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to addr at r" << ld_st.instr.ld_st_imm.rn << endl;
           break;
         case LDRBI:
           // need to implement
-          cout << "Not implemented" << endl;
+          addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm;
+          rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr] % 256);
+          cout << "Writing " << ld_st.instr.ld_st_imm.rt << " to r" << dmem[addr] << endl;
           break;
         case STRBR:
           // need to implement
@@ -530,7 +534,39 @@ void execute() {
       break;
     case LDM:
       decode(ldm);
-      // need to implement
+      n = 16;
+
+       list = ldm.instr.ldm.reg_list;
+
+       //addr = SP - 4*bitCount(list, n);
+       addr = rf[ldm.instr.ldm.rn];
+
+       for (i = 0, mask = 1; i < n; i++, mask<<=1) {
+
+          if (list&mask) {
+
+             caches.access(addr);
+
+             dmem.write(addr, rf[i]);
+
+             //cout << "addr: " << addr << " r" << i << ": " << rf[i] << endl;
+
+             addr-=4;
+
+             stats.numRegReads += 1;
+
+             stats.numMemWrites += 1;
+
+          }
+
+       }
+
+
+
+       stats.numRegReads += 1;
+
+       stats.numRegWrites += 1;
+      break;
       break;
     case STM:
       decode(stm);
