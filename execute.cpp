@@ -230,6 +230,7 @@ void execute() {
   Thumb_Types itype;
   // the following counts as a read to PC
   unsigned int pctarget = PC + 2;
+  stats.numRegReads += 1;
   unsigned int addr;
   int i, n, offset;
   unsigned int list, mask;
@@ -260,6 +261,7 @@ void execute() {
 
   // This counts as a write to the PC register
   rf.write(PC_REG, pctarget);
+  stats.numRegWrites += 1;
 
   itype = decode(ALL_Types(instr));
 
@@ -272,41 +274,59 @@ void execute() {
       switch(add_ops) {
         case ALU_LSLI:
         rf.write(alu.instr.lsli.rd, rf[alu.instr.lsli.rm] << alu.instr.lsli.imm);
+        stats.numRegReads += 1;
+        stats.numRegWrites += 1;
           break;
         case ALU_ADDR:
           // needs stats and flags
           rf.write(alu.instr.addr.rd, rf[alu.instr.addr.rn] + rf[alu.instr.addr.rm]);
           setCarryOverflow(rf[alu.instr.addr.rn], rf[alu.instr.addr.rm], OF_ADD);
+          stats.numRegReads += 2;
+          stats.numRegWrites += 1;
           
           break;
         case ALU_SUBR:
           rf.write(alu.instr.subr.rd, rf[alu.instr.subr.rn] - rf[alu.instr.subr.rm]);
+          stats.numRegReads += 2;
+          stats.numRegWrites += 1;
         //needs stats and flags
           break;
         case ALU_ADD3I:
           // needs stats and flags
           rf.write(alu.instr.add3i.rd, rf[alu.instr.add3i.rn] + alu.instr.add3i.imm);
+          stats.numRegReads += 1;
+          stats.numRegWrites += 1;
           break;
         case ALU_SUB3I:
           rf.write(alu.instr.sub3i.rd, rf[alu.instr.sub3i.rn] - alu.instr.sub3i.imm);
+          stats.numRegReads += 1;
+          stats.numRegWrites += 1;
           break;
         case ALU_MOV:
           // needs stats and flags
           rf.write(alu.instr.mov.rdn, alu.instr.mov.imm);
+          //stats.numRegReads += 1;
+          stats.numRegWrites += 1;
           break;
         case ALU_CMP:
           //ADD TO THIS
           setZN(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm);
           setCarryOverflow(rf[alu.instr.cmp.rdn], alu.instr.cmp.imm, OF_SUB);
+          stats.numRegReads += 1;
+          //stats.numRegWrites += 1;
           //cout << "rdn: " << rf[alu.instr.cmp.rdn] << ", imm: " << alu.instr.cmp.imm << endl;
           break;
         case ALU_ADD8I:
           // needs stats and flags
           rf.write(alu.instr.add8i.rdn, rf[alu.instr.add8i.rdn] + alu.instr.add8i.imm);
+          stats.numRegReads += 1;
+          stats.numRegWrites += 1;
           break;
         case ALU_SUB8I:
           // needs stats and flags
           rf.write(alu.instr.sub8i.rdn, rf[alu.instr.sub8i.rdn] - alu.instr.sub8i.imm);
+          stats.numRegReads += 1;
+          stats.numRegWrites += 1;
           break;
         default:
           cout << "instruction not implemented" << endl;
@@ -352,6 +372,8 @@ void execute() {
           // need to implement
           setZN(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm]);
           setCarryOverflow(rf[dp.instr.DP_Instr.rdn], rf[dp.instr.DP_Instr.rm], OF_SUB);
+          stats.numRegReads += 2;
+          stats.numRegWrites += 1;
           break;
       }
       break;
@@ -363,8 +385,14 @@ void execute() {
           rf.write((sp.instr.mov.d << 3 ) | sp.instr.mov.rd, rf[sp.instr.mov.rm]);
           break;
         case SP_ADD:
+        rf.write((sp.instr.add.rd), rf[sp.instr.add.rm]);
+        stats.numRegReads += 2;
+        stats.numRegWrites += 1;
+        break;
         case SP_CMP:
           // need to implement these
+        setZN(rf[sp.instr.cmp.rd], rf[sp.instr.cmp.rm]);
+        stats.numRegReads += 2;
           break;
       }
       break;
@@ -377,44 +405,62 @@ void execute() {
           // functionally complete, needs stats
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
+          stats.numMemWrites += 1;
+          stats.numRegReads += 2;
           break;
         case LDRI:
           // functionally complete, needs stats
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm * 4;
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr]);
+          stats.numMemReads += 1;
+          stats.numRegWrites += 1;
+          stats.numRegReads += 1;
           break;
         case STRR:
           // need to implement
           addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm] * 4;
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
+          stats.numMemWrites += 1;
+          stats.numRegReads += 3;
           //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to " << addr << endl;
           break;
         case LDRR:
           // need to implement
           addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm] * 4;
           rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
+          stats.numRegWrites += 1;
+          stats.numRegReads += 1;
           break;
         case STRBI:
           // need to implement
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm;
           dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt] % 256);
+          stats.numMemWrites += 1;
           //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to addr at r" << ld_st.instr.ld_st_imm.rn << endl;
           break;
         case LDRBI:
           // need to implement
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm;
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr] % 256);
+          stats.numMemReads += 1;
+          stats.numRegReads += 2;
           break;
         case STRBR:
           // need to implement
           addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt] % 256);
+          stats.numMemWrites += 1;
+          stats.numRegWrites += 1;
+          stats.numRegReads += 3;
           //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to " << addr << endl;
           break;
         case LDRBR:
           // need to implement
           addr = rf[ld_st.instr.ld_st_reg.rn] + rf[ld_st.instr.ld_st_reg.rm];
           rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr] % 256);
+          stats.numMemReads += 1;
+          stats.numRegWrites += 1;
+          stats.numRegReads += 2;
           //cout << "Writing b " << dmem[addr] << " to r" << ld_st.instr.ld_st_reg.rt << endl;
           break;
       }
@@ -508,10 +554,14 @@ void execute() {
         case MISC_SUB:
           // functionally complete, needs stats
           rf.write(SP_REG, SP - (misc.instr.sub.imm*4));
+          stats.numRegWrites += 1;
+          stats.numRegReads += 1;
           break;
         case MISC_ADD:
           // functionally complete, needs stats
           rf.write(SP_REG, SP + (misc.instr.add.imm*4));
+          stats.numRegWrites += 1;
+          stats.numRegReads += 1;
           break;
       }
       break;
@@ -521,13 +571,26 @@ void execute() {
       // this should work for all your conditional branches.
       // needs stats
       if (checkCondition(cond.instr.b.cond)){
+        stats.numRegWrites += 1;
+        stats.numRegReads += 1;
+        if (PC < PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2)
+          stats.numForwardBranchesTaken += 1;
+        else
+          stats.numBackwardBranchesTaken += 1;
         rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
+      }
+      else {
+        if (PC < PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2)
+          stats.numForwardBranchesNotTaken += 1;
+        else
+          stats.numBackwardBranchesNotTaken += 1;
       }
       break;
     case UNCOND:
       // Essentially the same as the conditional branches, but with no
       // condition check, and an 11-bit immediate field
       decode(uncond);
+      stats.numRegWrites += 1;
       rf.write(PC_REG, PC + 2 * signExtend8to32ui(cond.instr.b.imm) + 2);
       break;
     case LDM:
@@ -628,6 +691,8 @@ void execute() {
       // needs stats
       decode(addsp);
       rf.write(addsp.instr.add.rd, SP + (addsp.instr.add.imm*4));
+      stats.numRegReads += 1;
+      stats.numRegWrites += 1;
       break;
     default:
       cout << "[ERROR] Unknown Instruction to be executed" << endl;

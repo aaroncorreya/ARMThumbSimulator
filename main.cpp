@@ -51,9 +51,13 @@ int main(int argc, char ** argv) {
 
   cout << "Starting at PC " << hex << pc << endl;
   rf.write(15, pc);
+  stats.numRegWrites += 1;
   while(imem.inRange(rf[15])) {
+    stats.instrs += 1;
     execute();
+    cout << "Reg reads: " << stats.numRegReads << endl;
   }
+  stats.numRegReads += 2;
   
   if (opts.dump) {
     cout << "DATA:" << endl;
