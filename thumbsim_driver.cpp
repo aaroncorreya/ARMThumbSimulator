@@ -112,9 +112,9 @@ void Memory<Data32, Data32>::dump(DataType dt) const {
 bool Cache::access(unsigned int address) {
   int cacheSize = size;
   int blockSize = log2(blocksize);
-  int tagSize = cacheSize - blockSize;
+  int tagSize = 32 - log2(cacheSize) - blockSize + 2;
   int tag = address >> (32 - tagSize);
-  int index = (address % (2 ^ tagSize)) >> 2;
+  int index = (address % (2 ^ tagSize)) >> blockSize;
 
   if (entries[index] == tag) {
     hits += 1;
