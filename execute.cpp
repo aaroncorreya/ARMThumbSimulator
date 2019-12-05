@@ -407,6 +407,7 @@ void execute() {
           dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt]);
           stats.numMemWrites += 1;
           stats.numRegReads += 2;
+          caches.access(addr);
           break;
         case LDRI:
           // functionally complete, needs stats
@@ -415,6 +416,7 @@ void execute() {
           stats.numMemReads += 1;
           stats.numRegWrites += 1;
           stats.numRegReads += 1;
+          caches.access(addr);
           break;
         case STRR:
           // need to implement
@@ -422,6 +424,7 @@ void execute() {
           dmem.write(addr, rf[ld_st.instr.ld_st_reg.rt]);
           stats.numMemWrites += 1;
           stats.numRegReads += 3;
+          caches.access(addr);
           //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to " << addr << endl;
           break;
         case LDRR:
@@ -430,12 +433,14 @@ void execute() {
           rf.write(ld_st.instr.ld_st_reg.rt, dmem[addr]);
           stats.numRegWrites += 1;
           stats.numRegReads += 1;
+          caches.access(addr);
           break;
         case STRBI:
           // need to implement
           addr = rf[ld_st.instr.ld_st_imm.rn] + ld_st.instr.ld_st_imm.imm;
           dmem.write(addr, rf[ld_st.instr.ld_st_imm.rt] % 256);
           stats.numMemWrites += 1;
+          caches.access(addr);
           //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to addr at r" << ld_st.instr.ld_st_imm.rn << endl;
           break;
         case LDRBI:
@@ -444,6 +449,7 @@ void execute() {
           rf.write(ld_st.instr.ld_st_imm.rt, dmem[addr] % 256);
           stats.numMemReads += 1;
           stats.numRegReads += 2;
+          caches.access(addr);
           break;
         case STRBR:
           // need to implement
@@ -452,6 +458,7 @@ void execute() {
           stats.numMemWrites += 1;
           stats.numRegWrites += 1;
           stats.numRegReads += 3;
+          caches.access(addr);
           //cout << "Writing " << rf[ld_st.instr.ld_st_reg.rt] << " to " << addr << endl;
           break;
         case LDRBR:
@@ -461,6 +468,7 @@ void execute() {
           stats.numMemReads += 1;
           stats.numRegWrites += 1;
           stats.numRegReads += 2;
+          caches.access(addr);
           //cout << "Writing b " << dmem[addr] << " to r" << ld_st.instr.ld_st_reg.rt << endl;
           break;
       }
