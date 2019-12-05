@@ -663,7 +663,8 @@ class Caches {
       Caches(unsigned int _size) : size(_size) {
          int i;
          for (i = 4; i <= size; i *= 2) {
-            caches.push_back(Cache(size, i));
+            cout << dec << "size" << size << " i: " << i << endl; 
+             caches.push_back(Cache(size, i));
          }
       }
       void access(unsigned int address) {
