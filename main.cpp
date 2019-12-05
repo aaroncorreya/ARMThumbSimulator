@@ -55,7 +55,6 @@ int main(int argc, char ** argv) {
   while(imem.inRange(rf[15])) {
     stats.instrs += 1;
     execute();
-    cout << "Reg reads: " << stats.numRegReads << endl;
   }
   stats.numRegReads += 2;
   
